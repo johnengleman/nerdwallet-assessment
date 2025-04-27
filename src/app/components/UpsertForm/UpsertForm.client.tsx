@@ -1,7 +1,15 @@
 "use client";
-import { useState } from "react";
 
-// Now includes priority
+import * as React from "react";
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Button from "@mui/material/Button";
+
 export interface UpsertData {
   id?: number;
   title: string;
@@ -24,9 +32,7 @@ interface UpsertFormProps {
 
 export default function UpsertForm({ task, onSave, onClose }: UpsertFormProps) {
   const [title, setTitle] = useState(task?.title ?? "");
-  const [errorMessage, setErrorMessage] = useState<string | null>();
   const [description, setDescription] = useState(task?.description ?? "");
-
   const [priority, setPriority] = useState<UpsertData["priority"]>(() => {
     switch (task?.priority) {
       case 1:
@@ -39,86 +45,75 @@ export default function UpsertForm({ task, onSave, onClose }: UpsertFormProps) {
         return "medium";
     }
   });
-
-  const handleTitleChange = (e: React.KeyboardEvent) => {
-    setErrorMessage("");
-    setTitle(e.target.value);
-  };
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) {
+      setErrorMessage("Please enter a title.");
+      return;
+    }
     onSave({
       id: task?.id,
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       completed: task?.completed ?? false,
       priority,
     });
     onClose();
   };
 
-  const handleFormKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      const targetTagName = (e.target as Element).tagName.toLowerCase();
-
-      if (targetTagName === "textarea") {
-        return;
-      }
-
-      if (!task?.title) {
-        setErrorMessage("Please enter a title.");
-        return;
-      }
-
-      handleSubmit(e);
-    }
-  };
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      onKeyDown={handleFormKeyDown}
-      className="flex flex-col gap-y-4 p-6 w-[400px]"
-    >
-      <input
-        name="title"
-        value={title}
-        onChange={(e) => handleTitleChange(e)}
-        placeholder="Title"
-        className="border px-2 py-1"
-        required
-      />
-
-      <textarea
-        name="description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description"
-        className="border px-2 py-1"
-      />
-
-      <label htmlFor="priority" className="block text-sm font-medium">
-        Priority
-      </label>
-      <select
-        id="priority"
-        name="priority"
-        value={priority}
-        onChange={(e) => setPriority(e.target.value as UpsertData["priority"])}
-        className="border px-2 py-1"
+    <form onSubmit={handleSubmit}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          p: 3,
+          width: 400,
+        }}
       >
-        <option value="high">High</option>
-        <option value="medium">Medium</option>
-        <option value="low">Low</option>
-      </select>
+        <TextField
+          label="Title"
+          value={title}
+          onChange={(e) => {
+            setErrorMessage(null);
+            setTitle(e.target.value);
+          }}
+          required
+          error={!!errorMessage}
+          helperText={errorMessage ?? undefined}
+        />
 
-      <button
-        type="submit"
-        className="mt-4 bg-blue-500 text-white py-2 rounded"
-      >
-        {task ? "Save Changes" : "Add Task"}
-      </button>
-      {errorMessage && <p className="text-red-500 font-bold">{errorMessage}</p>}
+        <TextField
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          multiline
+          rows={4}
+        />
+
+        <FormControl>
+          <InputLabel id="priority-label">Priority</InputLabel>
+          <Select
+            labelId="priority-label"
+            value={priority}
+            label="Priority"
+            onChange={(e) =>
+              setPriority(e.target.value as UpsertData["priority"])
+            }
+          >
+            <MenuItem value="high">High</MenuItem>
+            <MenuItem value="medium">Medium</MenuItem>
+            <MenuItem value="low">Low</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Button type="submit" variant="contained" color="primary">
+          {task ? "Save Changes" : "Add Task"}
+        </Button>
+      </Box>
     </form>
   );
 }

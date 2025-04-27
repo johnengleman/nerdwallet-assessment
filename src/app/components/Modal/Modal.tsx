@@ -1,42 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
-import { createPortal } from "react-dom";
+import * as React from "react";
+import Dialog from "@mui/material/Dialog";
+import Box from "@mui/material/Box";
 
 interface ModalProps {
   children: React.ReactNode;
   onClose: () => void;
 }
 
-const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
-  const modalRoot =
-    typeof document !== "undefined"
-      ? document.getElementById("modal-root")
-      : null;
-
-  if (!modalRoot) return null;
-
-  return createPortal(
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/25"
+export default function Modal({ children, onClose }: ModalProps) {
+  return (
+    <Dialog
+      open
+      onClose={onClose}
+      container={() => document.getElementById("modal-root") ?? document.body}
+      slotProps={{
+        backdrop: { sx: { backgroundColor: "rgba(0,0,0,0.25)" } },
+        paper: {
+          sx: {
+            border: 1,
+            borderColor: "grey.200",
+            borderRadius: 2,
+            overflow: "visible",
+          },
+          elevation: 8,
+        },
+      }}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white border-2 border-gray-200 rounded shadow-lg"
-      >
-        {children}
-      </div>
-    </div>,
-    modalRoot
+      <Box>{children}</Box>
+    </Dialog>
   );
-};
-
-export default Modal;
+}

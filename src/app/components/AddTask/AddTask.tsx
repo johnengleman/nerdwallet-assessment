@@ -1,24 +1,23 @@
 "use client";
 
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+
 interface AddTaskProps {
   onAdd: (status: boolean) => void;
 }
 
-const AddTask: React.FC<AddTaskProps> = ({ onAdd }) => {
-  const handleClick = () => {
-    onAdd(true);
-  };
-
+export default function AddTask({ onAdd }: AddTaskProps) {
   return (
-    <>
-      <button
-        className="m-8 bg-amber-600 text-white px-10 py-2 rounded cursor-pointer"
-        onClick={() => handleClick()}
+    <Box m={4}>
+      <Button
+        variant="contained"
+        color="warning"
+        sx={{ px: 4, py: 1 }}
+        onClick={() => onAdd(true)}
       >
         Add Task
-      </button>
-    </>
+      </Button>
+    </Box>
   );
-};
-
-export default AddTask;
+}

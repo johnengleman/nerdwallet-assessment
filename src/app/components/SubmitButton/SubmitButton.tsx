@@ -1,22 +1,29 @@
-import { useFormStatus } from "react-dom";
+"use client";
 
-interface SubmitButton {
+import * as React from "react";
+import { useFormStatus } from "react-dom";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+
+interface SubmitButtonProps {
   text: string;
 }
 
-const SubmitButton: React.FC<SubmitButton> = ({ text }) => {
+export default function SubmitButton({ text }: SubmitButtonProps) {
   const { pending } = useFormStatus();
 
   return (
-    <button
+    <Button
       type="submit"
-      className="bg-amber-400 p-3 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+      variant="contained"
+      color="warning"
       disabled={pending}
-      aria-disabled={pending}
+      startIcon={
+        pending ? <CircularProgress size={20} color="inherit" /> : undefined
+      }
+      sx={{ px: 3, py: 1 }}
     >
       {pending ? "Adding..." : text}
-    </button>
+    </Button>
   );
-};
-
-export default SubmitButton;
+}

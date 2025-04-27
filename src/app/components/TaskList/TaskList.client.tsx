@@ -1,6 +1,8 @@
-// TaskList.client.tsx
 "use client";
 
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 import { Task } from "@prisma/client";
 import TaskItem from "../TaskItem/TaskItem.client";
 
@@ -18,37 +20,64 @@ export default function TaskList({
   onToggleComplete,
 }: TaskListProps) {
   return (
-    <div className="relative h-full w-full">
-      <div
-        className="
-          overflow-y-scroll h-full w-full p-4 flex flex-col space-y-3
-          scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200
-        "
-      >
+    <Box position="relative" width="100%" height="100%">
+      {/* scrollable content */}
+      <Box position="relative" overflow="auto" width="100%" height="100%" p={2}>
         {tasks.length > 0 ? (
-          tasks.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              onDelete={onDelete}
-              onEdit={onEdit}
-              onToggleComplete={onToggleComplete}
-            />
-          ))
+          <Stack spacing={2}>
+            {tasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                onToggleComplete={onToggleComplete}
+              />
+            ))}
+          </Stack>
         ) : (
-          <p className="text-2xl text-center block mt-20">Add a Task!</p>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+          >
+            <Typography variant="h5">Add a Task!</Typography>
+          </Box>
         )}
-      </div>
+      </Box>
 
-      <div
-        className="pointer-events-none absolute top-0 left-0 w-full h-10 
-                      bg-gradient-to-b from-white to-transparent"
+      {/* top fade */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        width="100%"
+        height={40}
+        sx={{
+          pointerEvents: "none",
+          backgroundImage: (theme) =>
+            "linear-gradient(to bottom, " +
+            theme.palette.background.paper +
+            ", transparent)",
+        }}
       />
 
-      <div
-        className="pointer-events-none absolute bottom-0 left-0 w-full h-10 
-                      bg-gradient-to-t from-white to-transparent"
+      {/* bottom fade */}
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        width="100%"
+        height={40}
+        sx={{
+          pointerEvents: "none",
+          backgroundImage: (theme) =>
+            "linear-gradient(to top, " +
+            theme.palette.background.paper +
+            ", transparent)",
+        }}
       />
-    </div>
+    </Box>
   );
 }

@@ -1,107 +1,158 @@
-import { useState } from "react";
-import SelectIcon from "../SelectIcon/SelectIcon";
-import DeleteIcon from "../DeleteIcon/DeleteIcon";
-import Modal from "../Modal/Modal";
-import { Task } from "@prisma/client";
+"use client";
 
-interface TaskItem {
+import * as React from "react";
+import { useState } from "react";
+import { Task } from "@prisma/client";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Checkbox from "@mui/material/Checkbox";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+
+interface TaskItemProps {
   task: Task;
   onDelete: (task: Task) => void;
   onEdit: (task: Task) => void;
   onToggleComplete: (task: Task) => void;
 }
 
-const TaskItem: React.FC<TaskItem> = ({
+const priorityMap = (p: number | null): string => {
+  switch (p) {
+    case 1:
+      return "High";
+    case 2:
+      return "Medium";
+    case 3:
+      return "Low";
+    default:
+      return "Low";
+  }
+};
+
+export default function TaskItem({
   task,
   onDelete,
   onEdit,
   onToggleComplete,
-}) => {
-  const { title, description, completed, priority } = task;
-  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+}: TaskItemProps) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const handleToggleComplete = (e: React.MouseEvent) => {
+  const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleComplete(task);
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-
     setConfirmDelete(true);
-  };
-
-  const priorityMap = (priority: number | null) => {
-    switch (priority) {
-      case 1:
-        return "High";
-      case 2:
-        return "Medium";
-      case 3:
-        return "Low";
-      default:
-        return "Low";
-    }
   };
 
   return (
     <>
-      <div
-        onClick={() => {
-          onEdit(task);
+      <ListItem disablePadding>
+        <ListItemButton
+          onClick={() => onEdit(task)}
+          sx={{
+            border: "1px solid transparent",
+            borderRadius: 1,
+            p: 1.5,
+            "&:hover": { borderColor: "grey.400" },
+          }}
+        >
+          <ListItemIcon>
+            <Checkbox
+              edge="start"
+              checked={task.completed}
+              disableRipple
+              onClick={handleToggle}
+            />
+          </ListItemIcon>
+
+          <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+            <Typography
+              variant="subtitle1"
+              component="div"
+              sx={{
+                textDecoration: task.completed ? "line-through" : "none",
+                color: task.completed ? "text.disabled" : "text.primary",
+              }}
+            >
+              {task.title}{" "}
+              <Typography
+                component="span"
+                variant="caption"
+                color="info.main"
+                sx={{ textTransform: "capitalize" }}
+              >
+                ({priorityMap(task.priority)})
+              </Typography>
+            </Typography>
+
+            <Typography
+              variant="body2"
+              component="div"
+              sx={{
+                mt: 0.5,
+                textDecoration: task.completed ? "line-through" : "none",
+                color: task.completed ? "text.disabled" : "text.secondary",
+              }}
+            >
+              {task.description}
+            </Typography>
+          </Box>
+
+          <IconButton edge="end" onClick={handleDeleteClick}>
+            <DeleteIcon />
+          </IconButton>
+        </ListItemButton>
+      </ListItem>
+
+      <Dialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        slotProps={{
+          paper: {
+            sx: {
+              p: 4,
+              borderRadius: 2,
+              minWidth: 300,
+            },
+            elevation: 8,
+          },
         }}
-        className="flex gap-10 items-center m-b justify-between cursor-pointer border-1 border-transparent transition-border duration-100 hover:border-gray-400 p-3 rounded"
       >
-        <SelectIcon
-          onClick={(e) => handleToggleComplete(e)}
-          completed={completed}
-        />
-        <div className="w-max flex flex-col justify-start flex-grow">
-          <h3
-            className={`text-lg font-bold items-center flex gap-2 ${
-              completed ? "line-through text-gray-400" : "text-gray-900"
-            }`}
+        <DialogTitle>Delete Task</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this task?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => onDelete(task)}
+            color="success"
+            variant="contained"
           >
-            {title}{" "}
-            <span className="text-sm lowercase text-cyan-700">
-              ({priorityMap(priority)})
-            </span>
-          </h3>
-          <p
-            className={`text-sm  ${
-              completed ? "line-through text-gray-300" : "text-gray-600"
-            }`}
+            Yes
+          </Button>
+          <Button
+            onClick={() => setConfirmDelete(false)}
+            color="warning"
+            variant="contained"
           >
-            {description}
-          </p>
-        </div>
-        <DeleteIcon onClick={(e) => handleDelete(e)} />
-      </div>
-      {confirmDelete && (
-        <Modal onClose={() => setConfirmDelete(false)}>
-          <div className="p-10 flex flex-col gap-10">
-            <p className="block tx-lg font-bold">
-              Are you sure you want to delete this task?
-            </p>
-            <div className="flex gap-6 w-full justify-between ">
-              <button
-                className="p-2 bg-green-800 w-1/3 cursor-pointer text-white rounded shadow"
-                onClick={() => onDelete(task)}
-              >
-                Yes
-              </button>
-              <button
-                className="p-2 bg-amber-800 w-1/3 cursor-pointer text-white rounded shadow"
-                onClick={() => setConfirmDelete(false)}
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
-};
-
-export default TaskItem;
+}

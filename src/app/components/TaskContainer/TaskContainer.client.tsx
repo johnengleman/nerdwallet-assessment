@@ -1,6 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { useState, useTransition, useOptimistic } from "react";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import { Task } from "@prisma/client";
 import AddTask from "../AddTask/AddTask";
 import TaskList from "../TaskList/TaskList.client";
@@ -31,10 +35,8 @@ export default function TaskContainer({
   const handleUpsert = (data: UpsertData) => {
     const isEdit = typeof data.id === "number";
     const tempId = isEdit ? data.id! : Date.now();
-
     const priorityNum =
       data.priority === "high" ? 1 : data.priority === "medium" ? 2 : 3;
-
     const optimistic: Task = {
       id: tempId,
       title: data.title,
@@ -43,26 +45,19 @@ export default function TaskContainer({
       priority: priorityNum,
       createdAt: new Date(),
     };
-
     const nextTasks = isEdit
       ? tasks.map((t) => (t.id === tempId ? optimistic : t))
       : [...tasks, optimistic];
 
     startTransition(async () => {
-      // 1) optimistic
       setTasks(nextTasks);
-
-      // 2) persist
       const saved: Task = await UpsertTodoAction(
         isEdit ? data.id! : undefined,
         data.title,
         data.description,
         priorityNum
       );
-
-      // 3) swap out temp for real
-      const finalTasks = nextTasks.map((t) => (t.id === tempId ? saved : t));
-      setTasks(finalTasks);
+      setTasks(nextTasks.map((t) => (t.id === tempId ? saved : t)));
     });
 
     setCreating(false);
@@ -70,55 +65,69 @@ export default function TaskContainer({
   };
 
   const handleToggle = (t: Task) => {
-    const nextTasks = tasks.map((x) =>
+    const next = tasks.map((x) =>
       x.id === t.id ? { ...x, completed: !x.completed } : x
     );
-
     startTransition(async () => {
-      setTasks(nextTasks);
+      setTasks(next);
       await ToggleTaskCompletedAction(t.id, !t.completed);
     });
   };
 
   const handleDelete = (t: Task) => {
-    const nextTasks = tasks.filter((x) => x.id !== t.id);
+    const next = tasks.filter((x) => x.id !== t.id);
     startTransition(async () => {
-      setTasks(nextTasks);
+      setTasks(next);
       await DeleteTaskAction(t.id);
     });
   };
 
+  const closeModal = () => {
+    if (!isPending) {
+      setCreating(false);
+      setEditing(null);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <Box
+      minHeight="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
       {(creating || editing) && (
-        <Modal
-          onClose={() => !isPending && (setCreating(false), setEditing(null))}
-        >
+        <Modal onClose={closeModal}>
           <UpsertForm
             task={editing ?? undefined}
             onSave={handleUpsert}
-            onClose={() => (setCreating(false), setEditing(null))}
+            onClose={() => {
+              setCreating(false);
+              setEditing(null);
+            }}
           />
         </Modal>
       )}
 
-      <div className="flex h-[500px] w-[1000px] gap-4">
-        <div className="w-1/4 p-4 shadow-md border border-gray-200">
+      <Box display="flex" width={1000} height={500} gap={2}>
+        <Paper variant="outlined" elevation={1} sx={{ width: "25%", p: 2 }}>
           <AddTask onAdd={() => setCreating(true)} />
+          <Box mt={2}>
+            <Typography>High {priorityCounts.high}</Typography>
+            <Typography>Medium {priorityCounts.medium}</Typography>
+            <Typography>Low {priorityCounts.low}</Typography>
+          </Box>
+        </Paper>
 
-          <div>High {priorityCounts.high}</div>
-          <div>Medium {priorityCounts.medium}</div>
-          <div>Low {priorityCounts.low}</div>
-        </div>
-        <div className="w-3/4 p-4 shadow-md border border-gray-200">
+        <Paper variant="outlined" elevation={1} sx={{ width: "75%", p: 2 }}>
           <TaskList
             tasks={tasks}
-            onEdit={(t) => setEditing(t)}
+            onEdit={setEditing}
             onToggleComplete={handleToggle}
             onDelete={handleDelete}
           />
-        </div>
-      </div>
-    </div>
+        </Paper>
+      </Box>
+    </Box>
   );
 }
