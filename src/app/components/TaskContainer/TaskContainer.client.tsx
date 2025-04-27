@@ -1,14 +1,13 @@
 "use client";
 
-import * as React from "react";
 import { useState, useTransition, useOptimistic } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { Task } from "@prisma/client";
-import AddTask from "../AddTask/AddTask";
+import AddTask from "../AddTask/AddTask.client";
 import TaskList from "../TaskList/TaskList.client";
-import Modal from "../Modal/Modal";
+import Modal from "../Modal/Modal.client";
 import UpsertForm, { UpsertData } from "../UpsertForm/UpsertForm.client";
 import UpsertTodoAction from "@/app/actions/UpsertTaskAction";
 import ToggleTaskCompletedAction from "@/app/actions/ToggleTaskCompletedAction";
@@ -51,7 +50,7 @@ export default function TaskContainer({
 
     startTransition(async () => {
       setTasks(nextTasks);
-      const saved: Task = await UpsertTodoAction(
+      const saved = await UpsertTodoAction(
         isEdit ? data.id! : undefined,
         data.title,
         data.description,
@@ -95,6 +94,7 @@ export default function TaskContainer({
       display="flex"
       alignItems="center"
       justifyContent="center"
+      width="100vw"
     >
       {(creating || editing) && (
         <Modal onClose={closeModal}>
@@ -109,17 +109,47 @@ export default function TaskContainer({
         </Modal>
       )}
 
-      <Box display="flex" width={1000} height={500} gap={2}>
-        <Paper variant="outlined" elevation={1} sx={{ width: "25%", p: 2 }}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: "column", md: "row" }}
+        width="100%"
+        maxWidth={1000}
+        height={{ xs: "auto", md: 500 }}
+        gap={2}
+        px={{ xs: 2, md: 0 }}
+        py={{ xs: 2, md: 0 }}
+      >
+        <Paper
+          variant="outlined"
+          elevation={1}
+          sx={{
+            width: { xs: "100%", md: "25%" },
+            p: 2,
+          }}
+        >
           <AddTask onAdd={() => setCreating(true)} />
-          <Box mt={2}>
-            <Typography>High {priorityCounts.high}</Typography>
-            <Typography>Medium {priorityCounts.medium}</Typography>
-            <Typography>Low {priorityCounts.low}</Typography>
+          <Box
+            mt={2}
+            display="flex"
+            flexDirection="column"
+            gap="10px"
+            justifyContent="space-between"
+          >
+            <Typography>High Priority: {priorityCounts.high}</Typography>
+            <Typography>Medium Priority: {priorityCounts.medium}</Typography>
+            <Typography>Low Priority: {priorityCounts.low}</Typography>
           </Box>
         </Paper>
 
-        <Paper variant="outlined" elevation={1} sx={{ width: "75%", p: 2 }}>
+        <Paper
+          variant="outlined"
+          elevation={1}
+          sx={{
+            width: { xs: "100%", md: "75%" },
+            p: 2,
+            flexGrow: 1,
+          }}
+        >
           <TaskList
             tasks={tasks}
             onEdit={setEditing}

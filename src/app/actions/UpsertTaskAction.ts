@@ -1,4 +1,3 @@
-// app/actions/UpsertTaskAction.ts
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -9,7 +8,7 @@ export default async function UpsertTodoAction(
   id: number | undefined,
   title: string,
   description: string | undefined,
-  priority: number // ← new
+  priority: number
 ): Promise<Task> {
   if (!title) throw new Error("Title is required");
 

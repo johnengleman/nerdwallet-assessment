@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Checkbox from "@mui/material/Checkbox";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";

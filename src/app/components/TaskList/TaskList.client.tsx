@@ -1,9 +1,9 @@
 "use client";
 
+import { Task } from "@prisma/client";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { Task } from "@prisma/client";
 import TaskItem from "../TaskItem/TaskItem.client";
 
 interface TaskListProps {
@@ -20,9 +20,15 @@ export default function TaskList({
   onToggleComplete,
 }: TaskListProps) {
   return (
-    <Box position="relative" width="100%" height="100%">
+    <Box position="relative" width="100%" height="100%" padding={0}>
       {/* scrollable content */}
-      <Box position="relative" overflow="auto" width="100%" height="100%" p={2}>
+      <Box
+        position="relative"
+        overflow="auto"
+        width="100%"
+        height="100%"
+        p={{ xs: 0, md: 2 }}
+      >
         {tasks.length > 0 ? (
           <Stack spacing={2}>
             {tasks.map((task) => (
