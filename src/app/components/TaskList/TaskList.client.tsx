@@ -25,15 +25,19 @@ export default function TaskList({
           scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200
         "
       >
-        {tasks.map((task) => (
-          <TaskItem
-            key={task.id}
-            task={task}
-            onDelete={onDelete}
-            onEdit={onEdit}
-            onToggleComplete={onToggleComplete}
-          />
-        ))}
+        {tasks.length > 0 ? (
+          tasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onDelete={onDelete}
+              onEdit={onEdit}
+              onToggleComplete={onToggleComplete}
+            />
+          ))
+        ) : (
+          <p className="text-2xl text-center block mt-20">Add a Task!</p>
+        )}
       </div>
 
       <div

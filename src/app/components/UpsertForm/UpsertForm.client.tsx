@@ -1,4 +1,3 @@
-// components/UpsertForm/UpsertForm.client.tsx
 "use client";
 import { useState } from "react";
 
@@ -12,7 +11,6 @@ export interface UpsertData {
 }
 
 interface UpsertFormProps {
-  // Task coming in may have a numeric priority
   task?: {
     id: number;
     title: string;
@@ -26,9 +24,9 @@ interface UpsertFormProps {
 
 export default function UpsertForm({ task, onSave, onClose }: UpsertFormProps) {
   const [title, setTitle] = useState(task?.title ?? "");
+  const [errorMessage, setErrorMessage] = useState<string | null>();
   const [description, setDescription] = useState(task?.description ?? "");
 
-  // Map numeric priority → string for the select
   const [priority, setPriority] = useState<UpsertData["priority"]>(() => {
     switch (task?.priority) {
       case 1:
@@ -42,6 +40,11 @@ export default function UpsertForm({ task, onSave, onClose }: UpsertFormProps) {
     }
   });
 
+  const handleTitleChange = (e: React.KeyboardEvent) => {
+    setErrorMessage("");
+    setTitle(e.target.value);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
@@ -54,15 +57,33 @@ export default function UpsertForm({ task, onSave, onClose }: UpsertFormProps) {
     onClose();
   };
 
+  const handleFormKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      const targetTagName = (e.target as Element).tagName.toLowerCase();
+
+      if (targetTagName === "textarea") {
+        return;
+      }
+
+      if (!task?.title) {
+        setErrorMessage("Please enter a title.");
+        return;
+      }
+
+      handleSubmit(e);
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
+      onKeyDown={handleFormKeyDown}
       className="flex flex-col gap-y-4 p-6 w-[400px]"
     >
       <input
         name="title"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => handleTitleChange(e)}
         placeholder="Title"
         className="border px-2 py-1"
         required
@@ -97,6 +118,7 @@ export default function UpsertForm({ task, onSave, onClose }: UpsertFormProps) {
       >
         {task ? "Save Changes" : "Add Task"}
       </button>
+      {errorMessage && <p className="text-red-500 font-bold">{errorMessage}</p>}
     </form>
   );
 }
