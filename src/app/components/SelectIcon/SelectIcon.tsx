@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SelectIconProps {
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   completed: boolean;
 }
 

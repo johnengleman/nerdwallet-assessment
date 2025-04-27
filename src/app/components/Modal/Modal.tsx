@@ -3,7 +3,12 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
-export default function Modal({ children, onClose }) {
+interface ModalProps {
+  children: React.ReactNode;
+  onClose: () => void;
+}
+
+const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -32,4 +37,6 @@ export default function Modal({ children, onClose }) {
     </div>,
     modalRoot
   );
-}
+};
+
+export default Modal;

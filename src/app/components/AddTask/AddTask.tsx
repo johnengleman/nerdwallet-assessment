@@ -1,6 +1,10 @@
 "use client";
 
-const AddTask = ({ onAdd }) => {
+interface AddTaskProps {
+  onAdd: (status: boolean) => void;
+}
+
+const AddTask: React.FC<AddTaskProps> = ({ onAdd }) => {
   const handleClick = () => {
     onAdd(true);
   };

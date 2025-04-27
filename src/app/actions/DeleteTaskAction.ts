@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { Task } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export default async function DeleteTaskAction(id: number): Promise<Task[]> {
+export default async function DeleteTaskAction(id: number): Promise<Task> {
   try {
     const deletedTask = await prisma.task.delete({
       where: {

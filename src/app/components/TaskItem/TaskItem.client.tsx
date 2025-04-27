@@ -19,14 +19,12 @@ const TaskItem: React.FC<TaskItem> = ({
 }) => {
   const { title, description, completed, priority } = task;
 
-  console.log(priority);
-
-  const handleToggleComplete = (e) => {
+  const handleToggleComplete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleComplete(task);
   };
 
-  const handleDelete = (e) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(task);
   };
