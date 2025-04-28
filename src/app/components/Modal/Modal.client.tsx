@@ -20,8 +20,9 @@ export default function Modal({ children, onClose }: ModalProps) {
           sx: {
             border: 1,
             borderColor: "grey.200",
-            borderRadius: 2,
+            borderRadius: 4,
             overflow: "visible",
+            padding: 3,
           },
           elevation: 8,
         },
