@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { Task } from "@prisma/client";
-import AddTask from "../AddTask/AddTask.client";
+import AddTask from "../buttons/AddTaskButton/AddTaskButton.client";
 import TaskList from "../TaskList/TaskList.client";
 import Modal from "../Modal/Modal.client";
 import UpsertForm, { UpsertData } from "../UpsertForm/UpsertForm.client";
@@ -112,6 +112,7 @@ export default function TaskContainer({
       <Box
         display="flex"
         flexDirection={{ xs: "column", md: "row" }}
+        justifyContent="flex-start"
         width="100%"
         maxWidth={1000}
         height={{ xs: "auto", md: 500 }}
@@ -124,20 +125,31 @@ export default function TaskContainer({
           elevation={1}
           sx={{
             width: { xs: "100%", md: "25%" },
-            p: 2,
+            p: 5,
+            flexDirection: { xs: "row", md: "column" },
+            display: "flex",
+            gap: "10px",
+            alignItems: { xs: "center", md: "start" },
+            justifyContent: "space-between",
           }}
         >
           <AddTask onAdd={() => setCreating(true)} />
           <Box
-            mt={2}
+            mt={{ md: 4 }}
             display="flex"
             flexDirection="column"
             gap="10px"
             justifyContent="space-between"
           >
-            <Typography>High Priority: {priorityCounts.high}</Typography>
-            <Typography>Medium Priority: {priorityCounts.medium}</Typography>
-            <Typography>Low Priority: {priorityCounts.low}</Typography>
+            <Typography color="info.main" fontSize="14px">
+              High Priority: {priorityCounts.high}
+            </Typography>
+            <Typography color="info.main" fontSize="14px">
+              Medium Priority: {priorityCounts.medium}
+            </Typography>
+            <Typography color="info.main" fontSize="14px">
+              Low Priority: {priorityCounts.low}
+            </Typography>
           </Box>
         </Paper>
 

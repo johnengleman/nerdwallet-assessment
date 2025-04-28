@@ -24,19 +24,6 @@ interface TaskItemProps {
   onToggleComplete: (task: Task) => void;
 }
 
-const priorityMap = (p: number | null): string => {
-  switch (p) {
-    case 1:
-      return "High";
-    case 2:
-      return "Medium";
-    case 3:
-      return "Low";
-    default:
-      return "Low";
-  }
-};
-
 export default function TaskItem({
   task,
   onDelete,
@@ -49,22 +36,28 @@ export default function TaskItem({
     e.stopPropagation();
     onToggleComplete(task);
   };
-
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setConfirmDelete(true);
   };
+
+  const dialogTitleId = `delete-task-dialog-title-${task.id}`;
+  const dialogDescId = `delete-task-dialog-desc-${task.id}`;
 
   return (
     <>
       <ListItem disablePadding>
         <ListItemButton
           onClick={() => onEdit(task)}
+          aria-label={`Edit task: ${task.title}`}
           sx={{
             border: "1px solid transparent",
             borderRadius: 1,
             p: 1.5,
             "&:hover": { borderColor: "grey.400" },
+            "&:focus-visible": {
+              outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+            },
           }}
         >
           <ListItemIcon>
@@ -73,14 +66,22 @@ export default function TaskItem({
               checked={task.completed}
               disableRipple
               onClick={handleToggle}
+              inputProps={{
+                "aria-label": task.completed
+                  ? `Mark "${task.title}" as incomplete`
+                  : `Mark "${task.title}" as complete`,
+              }}
             />
           </ListItemIcon>
 
           <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
             <Typography
-              variant="subtitle1"
+              variant="title"
               component="div"
               sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
                 textDecoration: task.completed ? "line-through" : "none",
                 color: task.completed ? "text.disabled" : "text.primary",
               }}
@@ -88,16 +89,18 @@ export default function TaskItem({
               {task.title}{" "}
               <Typography
                 component="span"
-                variant="caption"
+                variant="priority"
                 color="info.main"
-                sx={{ textTransform: "capitalize" }}
+                sx={{
+                  textTransform: "lowercase",
+                  color: task.completed ? "text.disabled" : "info.main",
+                }}
               >
                 ({priorityMap(task.priority)})
               </Typography>
             </Typography>
-
             <Typography
-              variant="body2"
+              variant="description"
               component="div"
               sx={{
                 mt: 0.5,
@@ -109,7 +112,11 @@ export default function TaskItem({
             </Typography>
           </Box>
 
-          <IconButton edge="end" onClick={handleDeleteClick}>
+          <IconButton
+            edge="end"
+            onClick={handleDeleteClick}
+            aria-label={`Delete task: ${task.title}`}
+          >
             <DeleteIcon />
           </IconButton>
         </ListItemButton>
@@ -118,35 +125,34 @@ export default function TaskItem({
       <Dialog
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
+        aria-labelledby={dialogTitleId}
+        aria-describedby={dialogDescId}
         slotProps={{
           paper: {
-            sx: {
-              p: 4,
-              borderRadius: 2,
-              minWidth: 300,
-            },
+            sx: { p: 4, borderRadius: 2, minWidth: 300 },
             elevation: 8,
           },
         }}
       >
-        <DialogTitle>Delete Task</DialogTitle>
+        <DialogTitle id={dialogTitleId}>Delete “{task.title}”?</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText id={dialogDescId}>
             Are you sure you want to delete this task?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => onDelete(task)}
-            color="success"
+            color="primary"
             variant="contained"
           >
             Yes
           </Button>
           <Button
             onClick={() => setConfirmDelete(false)}
-            color="warning"
-            variant="contained"
+            color="secondary"
+            variant="outlined"
+            autoFocus
           >
             No
           </Button>
@@ -155,3 +161,6 @@ export default function TaskItem({
     </>
   );
 }
+
+const priorityMap = (p: number | null): string =>
+  p === 1 ? "High" : p === 2 ? "Medium" : "Low";
